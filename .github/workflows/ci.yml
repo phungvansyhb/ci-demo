@@ -1,4 +1,4 @@
-name: CI Basis
+name: CI Build
 on:
     push:
         branches: [main]
@@ -11,12 +11,13 @@ jobs:
             # kéo repo về máy ảo của github, các lệnh sau đó thực thi tại thư mục gốc của repo
             - name: checkout code
               uses: actions/checkout@v3
-
-            - name: check node version
-              run: node -v
-            - name: list files
-              run: ls -al
-            - name: say hello
-              run: echo "Hello, CI!"
-            - name: force fail
-              run: exit 1
+            - name: setup node 
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+            # tai sao lại dùng npm ci thay vì npm install: https://docs.npmjs.com/cli/v9/commands/npm-ci
+            - name: install dependencies
+              run: npm ci
+            - name: build proj
+              run: npm run build
+            
