@@ -12,5 +12,7 @@ jobs:
               uses: actions/checkout@v3
             - name: check node version
               run: node -v
+            - name: list files
+              run: ls -al
             - name: say hello
               run: echo "Hello, CI!"
