@@ -8,11 +8,15 @@ jobs:
     ci:
         runs-on: ubuntu-latest
         steps:
+            # kéo repo về máy ảo của github, các lệnh sau đó thực thi tại thư mục gốc của repo
             - name: checkout code
               uses: actions/checkout@v3
+
             - name: check node version
               run: node -v
             - name: list files
               run: ls -al
             - name: say hello
               run: echo "Hello, CI!"
+            - name: force fail
+              run: exit 1
