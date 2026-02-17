@@ -1,37 +1,54 @@
 name: CI Build
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 permissions:
-  contents: read
+    contents: write
 jobs:
-  ci:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node_version: [24, 20]
-    steps:
-      # kéo repo về máy ảo của github, các lệnh sau đó thực thi tại thư mục gốc của repo
-      - name: checkout code
-        uses: actions/checkout@v4
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{matrix.node_version}}
-          cache: "npm"
-      # tai sao lại dùng npm ci thay vì npm install: https://docs.npmjs.com/cli/v9/commands/npm-ci
-      - name: install dependencies
-        run: npm ci
-      - name: Type check
-        run: npm run type-check --if-present
-      - name: format
-        run: npm run format
-      - name: build proj
-        run: npm run build
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: dist
+    ci:
+        if: github.actor != 'github-actions[bot]'
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node_version: [20]
+        steps:
+            # kéo repo về máy ảo của github, các lệnh sau đó thực thi tại thư mục gốc của repo
+            - name: checkout code
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: true
+            - name: setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{matrix.node_version}}
+                  cache: 'npm'
+            # tai sao lại dùng npm ci thay vì npm install: https://docs.npmjs.com/cli/v9/commands/npm-ci
+            - name: install dependencies
+              run: npm ci
+            - name: Type check
+              run: npm run type-check --if-present
+            - name: format
+              run: npm run format
+            - name: Commit changes if any
+              run: |
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+                  git add -A
+
+                  # kiểm tra có thay đổi không
+                  if git diff --cached --quiet; then
+                    echo "No changes to commit"
+                  else
+                    git commit -m "chore: auto format code"
+                    git push
+                  fi
+            - name: build proj
+              run: npm run build
+            - name: Upload build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-output
+                  path: dist
