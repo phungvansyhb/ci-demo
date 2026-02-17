@@ -4,20 +4,30 @@ on:
         branches: [main]
     pull_request:
         branches: [main]
+permissions: 
+    contents: read
 jobs:
     ci:
         runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            node_version: [18, 20]
         steps:
             # kéo repo về máy ảo của github, các lệnh sau đó thực thi tại thư mục gốc của repo
             - name: checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
             - name: setup node 
               uses: actions/setup-node@v4
               with:
-                  node-version: '20'
+                  node-version: ${{matrix.node_version}}
+                  cache: 'npm'
             # tai sao lại dùng npm ci thay vì npm install: https://docs.npmjs.com/cli/v9/commands/npm-ci
             - name: install dependencies
               run: npm ci
+            - name: Type check
+              run: npm run type-check --if-present
+            - name: Lint
+              run: npm run lint --if-present
             - name: build proj
               run: npm run build
             
