@@ -47,8 +47,8 @@ jobs:
                     MESSAGE+="Author: ${{ github.actor }}%0A%0A"
                     MESSAGE+="Please run \`npm run format\` locally and commit the changes."
                     
-                    curl -s -X POST "https://api.telegram.org/bot8573454294:AAEdg8NHw-gW6b454Whx4Wj2WMCKS2BKzKI/sendMessage" \
-                      -d chat_id="5223925510" \
+                    curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+                      -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
                       -d text="$MESSAGE" \
                       -d parse_mode="Markdown"
                     
